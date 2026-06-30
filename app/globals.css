@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+:root{
+    hight: 100px;
+}
+
+input, select, textarea {
+    @apply bg-white text-black; /* Apply Tailwind classes for white background and black text */
+}
+
+.ql-container{
+    font-size: 16px !important;
+}
+
+@import "~@uploadthing/react/styles.css";

@@ -30,9 +30,10 @@ interface GetChapterProps {
                 price:true,
             }
         });
-        const chapter =await db.chapter.findUnique({
+        const chapter =await db.chapter.findFirst({
             where:{
                 id:chapterId,
+                courseId,
                 isPublished:true,
 
             }
@@ -113,4 +114,3 @@ interface GetChapterProps {
       
     }
   };
-  

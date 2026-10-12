@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "rbac:migrate": "node scripts/migrate-lms.js",
+    "lms:migrate": "node scripts/migrate-lms.js",
+    "test": "node --experimental-default-type=module --test",
+    "lms:verify": "node scripts/verify-lms.js",
+    "mux:migrate-signing": "node scripts/migrate-mux-signing.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^5.3.7",
@@ -15,7 +20,7 @@
     "@hookform/resolvers": "^3.9.0",
     "@mux/mux-node": "^8.8.0",
     "@mux/mux-player-react": "^2.9.1",
-    "@prisma/client": "^5.19.1",
+    "@prisma/client": "^6.16.3",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.2",
@@ -26,9 +31,6 @@
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@tanstack/react-table": "^8.20.5",
-    "@types/node": "22.5.0",
-    "@types/react": "18.3.4",
-    "@types/react-dom": "18.3.0",
     "@uploadthing/react": "^6.8.0",
     "autoprefixer": "10.4.20",
     "axios": "^1.7.7",
@@ -40,6 +42,7 @@
     "lucide-react": "^0.435.0",
     "next": "14.2.6",
     "postcss": "8.4.41",
+    "prisma": "^6.16.3",
     "query-string": "^9.1.0",
     "quill": "^2.0.2",
     "react": "^18.3.1",
@@ -56,12 +59,8 @@
     "tailwind-merge": "^2.5.2",
     "tailwindcss": "3.4.10",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "5.5.4",
     "uploadthing": "^6.13.3",
     "zod": "^3.23.8",
     "zustand": "^4.5.5"
-  },
-  "devDependencies": {
-    "prisma": "^5.19.0"
   }
 }

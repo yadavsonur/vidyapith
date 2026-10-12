@@ -2,18 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --background: 43 33% 97%;      /* #faf8f2 Parchment 50 */
+    --foreground: 40 20% 10%;      /* #181613 Deep Ink */
+    
+    --card: 0 0% 100%;             /* #ffffff Clean sheet */
+    --card-foreground: 40 20% 10%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 40 20% 10%;
+    
+    --primary: 40 20% 12%;         /* Deep charcoal ink */
+    --primary-foreground: 43 33% 97%;
+    
+    --secondary: 40 20% 93%;       /* Soft parchment tone */
+    --secondary-foreground: 40 20% 15%;
+    
+    --muted: 40 15% 91%;
+    --muted-foreground: 40 12% 42%;
+    
+    --accent: 37 75% 48%;          /* Ochre Gold */
+    --accent-foreground: 40 20% 10%;
+    
+    --destructive: 5 69% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 18% 88%;          /* Crisp delicate book border */
+    --input: 40 18% 86%;
+    --ring: 37 75% 48%;
+    
+    --radius: 0.5rem;
+  }
+}
+
 html,
-body,
-:root{
-    hight: 100px;
+body {
+  min-height: 100%;
+  background-color: #faf8f2;
+  color: #181613;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Subtle archival book paper grain texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Custom editorial scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #f4efe4;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1bcae;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9f9986;
 }
 
 input, select, textarea {
-    @apply bg-white text-black; /* Apply Tailwind classes for white background and black text */
+  background-color: #ffffff;
+  color: #181613;
 }
 
-.ql-container{
-    font-size: 16px !important;
+.ql-container {
+  font-size: 15px !important;
+  font-family: inherit !important;
+}
+
+.ql-editor {
+  min-height: 140px;
 }
 
 @import "~@uploadthing/react/styles.css";

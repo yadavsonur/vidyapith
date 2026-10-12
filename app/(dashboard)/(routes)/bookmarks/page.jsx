@@ -1,0 +1,5 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
+import Link from "next/link";
+export default async function BookmarksPage(){const {userId}=auth();if(!userId)return redirect("/sign-in");const items=await db.bookmark.findMany({where:{userId},include:{course:{select:{id:true,title:true}},chapter:{select:{id:true,title:true}}},orderBy:{createdAt:"desc"}});return <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-6"><div><div className="text-[10px] font-mono uppercase tracking-widest text-ochre-700">Saved Lessons</div><h1 className="font-serif text-3xl font-medium">Bookmarks</h1></div>{items.length?<div className="space-y-3">{items.map(x=><Link key={x.id} href={`/courses/${x.course.id}/chapters/${x.chapter.id}`} className="block border border-ink-200 rounded-xl bg-white p-4 hover:border-ink-400"><div className="text-[10px] font-mono text-ink-400">{x.course.title}</div><div className="font-serif text-lg">{x.chapter.title}</div></Link>)}</div>:<div className="border border-dashed border-ink-200 rounded-xl p-10 text-center text-sm text-ink-400">Bookmark a lesson to see it here.</div>}</div>}

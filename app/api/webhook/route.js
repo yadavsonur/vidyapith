@@ -27,6 +27,9 @@ const processCheckoutCompleted = async (session, eventId) => {
     await writeAuditLog({ actorId: userId, action: "PAYMENT_SUCCEEDED", entityType: "Purchase", entityId: purchase.id, metadata: { stripeEventId: eventId, courseId, amount, currency }, tx });
     await createNotification({ userId, type: "PAYMENT_SUCCEEDED", title: "Payment successful", body: "Your purchase is confirmed and course access is active.", link: `/courses/${courseId}`, dedupeKey: `payment-succeeded:${eventId}`, tx });
     return purchase;
+  }, {
+    maxWait: 10000,
+    timeout: 15000,
   });
 };
 
@@ -41,6 +44,9 @@ const processRefund = async (object, eventId) => {
     await writeAuditLog({ actorId: null, action: "PAYMENT_REFUNDED", entityType: "Purchase", entityId: updated.id, metadata: { stripeEventId: eventId, refundId: updated.stripeRefundId }, tx });
     await createNotification({ userId: purchase.userId, type: "PAYMENT_REFUNDED", title: "Payment refunded", body: "Your refund was recorded and access to the purchased course has been revoked.", link: `/payments`, dedupeKey: `payment-refunded:${eventId}`, tx });
     return updated;
+  }, {
+    maxWait: 10000,
+    timeout: 15000,
   });
 };
 
@@ -75,6 +81,9 @@ export async function POST(req) {
         await tx.paymentEvent.update({ where: { stripeEventId: event.id }, data: { purchaseId: purchase.id, processedAt: new Date() } });
         await writeAuditLog({ actorId: null, action: "PAYMENT_FAILED", entityType: "Purchase", entityId: purchase.id, metadata: { stripeEventId: event.id }, tx });
         await createNotification({ userId: purchase.userId, type: "SYSTEM", title: "Payment failed", body: "Stripe reported that your course payment failed. No course access was granted.", link: `/courses/${purchase.courseId}`, dedupeKey: `payment-failed:${event.id}`, tx });
+      }, {
+        maxWait: 10000,
+        timeout: 15000,
       });
     } else {
       await db.paymentEvent.update({ where: { stripeEventId: event.id }, data: { processedAt: new Date() } });

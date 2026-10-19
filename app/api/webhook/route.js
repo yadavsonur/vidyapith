@@ -9,23 +9,48 @@ const processCheckoutCompleted = async (session, eventId) => {
   const userId = session?.metadata?.userId;
   const courseId = session?.metadata?.courseId;
   if (!userId || !courseId) throw new Error("Missing checkout metadata");
+  
   return db.$transaction(async (tx) => {
     await tx.user.upsert({ where: { id: userId }, update: {}, create: { id: userId, role: "STUDENT" } });
     const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : null;
     const amount = Number(session.amount_total || 0) / 100;
     const currency = String(session.currency || "usd").toUpperCase();
     const existing = await tx.purchase.findUnique({ where: { userId_courseId: { userId, courseId } } });
+    
     if (existing?.status === "REFUNDED") {
       await tx.paymentEvent.update({ where: { stripeEventId: eventId }, data: { purchaseId: existing.id, processedAt: new Date() } });
       return existing;
     }
+    
     const purchase = existing
       ? await tx.purchase.update({ where: { id: existing.id }, data: { amount, currency, status: "SUCCEEDED", stripeCheckoutSessionId: session.id, stripePaymentIntentId: paymentIntentId, lastWebhookEventId: eventId, stripeRefundId: null } })
       : await tx.purchase.create({ data: { userId, courseId, amount, currency, status: "SUCCEEDED", stripeCheckoutSessionId: session.id, stripePaymentIntentId: paymentIntentId, lastWebhookEventId: eventId } });
+      
     await tx.enrollment.upsert({ where: { userId_courseId: { userId, courseId } }, update: { status: "ACTIVE", completedAt: null }, create: { userId, courseId, status: "ACTIVE" } });
     await tx.paymentEvent.update({ where: { stripeEventId: eventId }, data: { purchaseId: purchase.id, processedAt: new Date() } });
-    await writeAuditLog({ actorId: userId, action: "PAYMENT_SUCCEEDED", entityType: "Purchase", entityId: purchase.id, metadata: { stripeEventId: eventId, courseId, amount, currency }, tx });
-    await createNotification({ userId, type: "PAYMENT_SUCCEEDED", title: "Payment successful", body: "Your purchase is confirmed and course access is active.", link: `/courses/${courseId}`, dedupeKey: `payment-succeeded:${eventId}`, tx });
+    
+    // Direct transaction queries to prevent transaction context loss
+    await tx.auditLog.create({
+      data: {
+        actorId: userId,
+        action: "PAYMENT_SUCCEEDED",
+        entityType: "Purchase",
+        entityId: purchase.id,
+        metadata: JSON.stringify({ stripeEventId: eventId, courseId, amount, currency }),
+      },
+    });
+
+    await tx.notification.create({
+      data: {
+        userId,
+        type: "PAYMENT_SUCCEEDED",
+        title: "Payment successful",
+        body: "Your purchase is confirmed and course access is active.",
+        link: `/courses/${courseId}`,
+        dedupeKey: `payment-succeeded:${eventId}`,
+      },
+    }).catch(() => {}); // Catch duplicate dedupeKey gracefully if retried
+
     return purchase;
   }, {
     maxWait: 10000,

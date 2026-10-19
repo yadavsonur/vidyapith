@@ -1,6 +1,6 @@
 # Vidhyapith
 
-Vidhyapith is a production-oriented Next.js 14 App Router Learning Management System using Clerk for identity, Prisma/MySQL for application data, Stripe for payments, Mux for protected video playback, and UploadThing for file ingestion.
+Vidhyapith is a production-oriented Next.js 14 App Router Learning Management System using Clerk for identity, Prisma/MySQL for application data, Stripe for payments, Mux for protected video playback, and UploadThing for file ingestion.it is bridge gap between students and teacher.
 
 ## Implemented LMS scope
 

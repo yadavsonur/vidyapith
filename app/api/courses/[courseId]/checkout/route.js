@@ -26,13 +26,15 @@ export async function POST(req, { params }) {
       const customer = await stripe.customers.create({ email: email || undefined, metadata: { clerkUserId: user.id } });
       stripeCustomer = await db.stripeCustomer.create({ data: { userId: user.id, stripeCustomerId: customer.id } });
     }
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.headers.get("origin") || "https://vidyapith-three.vercel.app";
 
     const session = await stripe.checkout.sessions.create({
+    
       customer: stripeCustomer.stripeCustomerId,
       line_items: [{ quantity: 1, price_data: { currency: "usd", product_data: { name: course.title, description: course.description || undefined }, unit_amount: Math.round(Number(course.price) * 100) } }],
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/courses/${course.id}?success=1`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/courses/${course.id}?cancel=1`,
+      success_url: `${baseUrl}/courses/${course.id}?success=1`,
+      cancel_url: `${baseUrl}/courses/${course.id}?cancel=1`,
       metadata: { courseId: course.id, userId: user.id },
     });
 
